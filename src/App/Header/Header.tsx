@@ -1,14 +1,18 @@
-import { useContext } from 'react'
-import {Link} from 'react-router-dom'
+import { useContext } from "react";
+import { Link } from "react-router-dom";
+import CartContext from "../../Context/CartContext";
 
-import UserContext from "../../Context/UserContext"
+import UserContext from "../../Context/UserContext";
 
 function Header() {
-    const { currentUser, setCurrentUser } = useContext(UserContext);
-    const handleLogout = () => {
-      localStorage.removeItem("token");
-      setCurrentUser(null);
-    };
+  const { currentUser, setCurrentUser } = useContext(UserContext);
+  const { cart } = useContext(CartContext);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setCurrentUser(null);
+  };
+
   return (
     <div>
       <ul>
@@ -19,6 +23,9 @@ function Header() {
             </li>
             <li>
               <Link to="/borrowedBooks">Borrowed Books</Link>
+            </li>
+            <li>
+              <Link to="/bookcart">Cart ({cart && cart.length})</Link>
             </li>
           </>
         )}
@@ -48,4 +55,4 @@ function Header() {
   );
 }
 
-export default Header
+export default Header;

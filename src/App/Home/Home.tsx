@@ -1,10 +1,10 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { authHeader } from "../../Services/AuthService";
 import { Book } from "../AdminPage/BookManager/BookManager";
 
-export function Home() {
-  const [books, setBooks] = useState<Book[]>();
+export function Home({ onClickAddtoCart = (book: any) => {} }) {
+  const [book, setBooks] = useState<Book[]>();
 
   useEffect(() => {
     (async () => {
@@ -14,7 +14,6 @@ export function Home() {
         headers: authHeader(),
       })
         .then((res) => {
-          console.log(res.data);
           setBooks(res.data);
         })
         .catch((err) => console.log(err));
@@ -23,14 +22,14 @@ export function Home() {
 
   return (
     <div>
-      {books &&
-        books.length > 0 &&
-        books.map((book: Book) => (
+      {book &&
+        book.length > 0 &&
+        book.map((book: any) => (
           <div key={book.id}>
             <div>{book.name}</div>
             <div>{book.author}</div>
             <div>{book.category.name}</div>
-            <hr />
+            <button onClick={() => onClickAddtoCart(book)}>Add to carts</button>
           </div>
         ))}
     </div>

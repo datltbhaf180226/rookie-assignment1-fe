@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlusSquare,
   faCheckCircle,
   faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
@@ -15,8 +14,6 @@ import "./BorrowManager.css";
 function BorrowManager() {
   const [borrowRequests, setBorrowRequests] = useState<any>();
   const [changes, setChanges] = useState<boolean>(false);
-  const [borrowBooks, setBorrowBooks] = useState<any>();
-  const [message, setMessage] = useState<string>();
   useEffect(() => {
     (async () => {
       axios({

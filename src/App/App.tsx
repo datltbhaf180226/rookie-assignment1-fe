@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
@@ -10,7 +9,6 @@ import { Home } from "./Home/Home";
 import { Login } from "./Login/Login";
 import UserContext from "../Context/UserContext";
 import Header from "./Header/Header";
-import BookManager from "./AdminPage/BookManager/BookManager";
 import BorrowManager from "./AdminPage/BorrowManager/BorrowManager";
 import CategoryManager from "./AdminPage/CategoryManager/CategoryManager";
 import BorrowedBooks from "./Home/BorrowedBooks";
@@ -19,9 +17,15 @@ import EditBook from "./AdminPage/BookManager/EditBook";
 import EditCategory from "./AdminPage/CategoryManager/EditCategory";
 import AddCategory from "./AdminPage/CategoryManager/AddCategory";
 import BorrowDetail from "./AdminPage/BorrowManager/BorrowDetail";
+import CartContext from "../Context/CartContext";
+import BookManager from "./AdminPage/BookManager/BookManager";
+import BookCart from "./Home/BookCart";
+import axios from "axios";
+import { authHeader } from "../Services/AuthService";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [cart, setCart] = useState<any>();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,6 +33,53 @@ function App() {
       setCurrentUser(JSON.parse(token));
     }
   }, []);
+
+  
+
+  
+  const addBookToCart = (book: any) => {
+    if (cart) {
+      setCart([...cart, book]);
+    } else {
+      setCart([book]);
+    }
+  };
+
+  const removerBookFromCart = (bookId: any) => {
+    if (cart) {
+      const index = cart.findIndex((item: any) => item.id === bookId);
+      cart.splice(index, 1);
+      setCart(cart);
+    }
+  };
+
+  const handleBorrowBook = () => {
+    const books: any = {
+      borrowRequestDetails: []
+    }
+    if (cart) {
+      for (let item of cart) {
+        books.borrowRequestDetails.push({bookId: item.id})
+      }
+
+      (async () => {
+        axios({
+          method: "post",
+          url: `https://localhost:44307/borrowRequests/${currentUser.username}`,
+          headers: authHeader(),
+          data: books,
+        })
+          .catch((err) => {
+            if (err.response.status === 400) {
+              alert("Bạn chỉ được mượn tối đa 3 lần trong một tháng và mỗi lần chỉ được mượn 5 cuốn sách")
+            }
+          });
+      })();
+    }
+
+  }
+
+  console.log(cart);
 
   let userLogin = null;
   let routeLink = null;
@@ -70,8 +121,14 @@ function App() {
           <Route path="/borrowedBooks">
             <BorrowedBooks />
           </Route>
+          <Route path="/bookcart">
+            <BookCart
+              onRemoveCartItem={removerBookFromCart}
+              onBorrowBook={handleBorrowBook}
+            />
+          </Route>
           <Route exact path="/">
-            <Home />
+            <Home onClickAddtoCart={addBookToCart} />
           </Route>
         </>
       );
@@ -80,20 +137,21 @@ function App() {
     userLogin = <Login />;
   }
 
-  
   if (currentUser && currentUser.role === 0) {
-    
   }
+
   return (
     <Router>
       <UserContext.Provider value={{ currentUser, setCurrentUser }}>
-        <div className="a">
-          <Header />
-          <Switch>
-            <Route path="/login">{userLogin}</Route>
-            {routeLink}
-          </Switch>
-        </div>
+        <CartContext.Provider value={{ cart, setCart }}>
+          <div className="a">
+            <Header />
+            <Switch>
+              <Route path="/login">{userLogin}</Route>
+              {routeLink}
+            </Switch>
+          </div>
+        </CartContext.Provider>
       </UserContext.Provider>
     </Router>
   );

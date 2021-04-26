@@ -1,7 +1,6 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import React from "react";
 
 import UserContext from "../../Context/UserContext";
 
